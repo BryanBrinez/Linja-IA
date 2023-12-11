@@ -10,14 +10,14 @@ def contar_diferentes_a_free_en_columna(matriz, columna):
 class LinjaGame:
     def __init__(self):
         self.board = [
-            ["Free", "Black", "Black", "Black", "Black", "Black", "Black", "Free"],
-            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
-            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
-            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
-            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
-            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
-            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
-            ["Free", "Red", "Red", "Red", "Red", "Red", "Red", "Free"]
+            ["Free", "Black", "Free", "Free", "Free", "Free", "Free", "Free"],
+            ["Black", "Black", "Free", "Free", "Free", "Free", "Red", "Red"],
+            ["Black", "Black", "Free", "Free", "Free", "Free", "Red", "Red"],
+            ["Black", "Black", "Free", "Free", "Free", "Red", "Red", "Red"],
+            ["Free", "Black", "Free", "Black", "Free", "Free", "Red", "Red"],
+            ["Free", "Black", "Free", "Black", "Free", "Red", "Red", "Red"],
+            ["Black", "Free", "Free", "Free", "Free", "Free", "Free", "Free"],
+            ["Free", "Free", "Free", "Free", "Free", "Free", "Free", "Free"]
         ]
         self.current_player = "Red"
         self.second_move_distance = 0
@@ -101,16 +101,75 @@ class LinjaGame:
 
         return True
 
+    def check_winner(self):
+        if not self.game_over():
+            return 'The game is not over yet'
+
+        red_score, black_score = game.calculate_scores()
+        
+        
+
+        if red_score > black_score:
+            return 'Red wins with ' + str(red_score) + ' points' + str(black_score)
+        elif black_score > red_score:
+            return 'Black wins with ' + str(black_score) + ' points' + str(red_score)
+        else:
+            return 'The game is a tie with ' + str(red_score) + ' points each'
+
+    def game_over(self):
+            # Verificar que no haya fichas rojas y negras en la misma columna
+            for col in range(8):
+                col_contains_red = any(self.board[row][col] == 'Red' for row in range(8))
+                col_contains_black = any(self.board[row][col] == 'Black' for row in range(8))
+                if col_contains_red and col_contains_black:
+                    return False
+            return True
+
+
+    
+
+    def count_colors_and_columns(self):
+        count = {"Red": {}, "Black": {}}
+        for i, row in enumerate(self.board):
+            for j, color in enumerate(row):
+                if color in ["Red", "Black"]:
+                    if j in count[color]:
+                        count[color][j] += 1
+                    else:
+                        count[color][j] = 1
+        return count
+
+    def calculate_score_with_multipliers(self, count, multipliers):
+        return sum(count.get(col, 0) * multiplier for col, multiplier in multipliers.items())
+
+    def calculate_scores(self):
+        color_counts = self.count_colors_and_columns()
+
+        red_multipliers = {7: 5, 6: 3, 5: 2, 4: 1}
+        black_multipliers = {0: 5, 1: 3, 2: 2, 3: 1}
+
+        red_score = self.calculate_score_with_multipliers(color_counts["Red"], red_multipliers)
+        black_score = self.calculate_score_with_multipliers(color_counts["Black"], black_multipliers)
+
+        return red_score, black_score
+
+
+    def change_turn(self):
+        self.current_player = "Black" if self.current_player == "Red" else "Red"
+
 # Crear una instancia del juego y realizar el primer movimiento
 game = LinjaGame()
-pieces_to_move = game.make_move(1, 0, 1, 1)  # Mover de (1,0) a (1,1)
-print(pieces_to_move)  
+#pieces_to_move = game.make_move(1, 0, 1, 1)  # Mover de (1,0) a (1,1)
+#print(pieces_to_move)  
 
+#game.display_board()
+
+
+#game.make_second_move(3,0, 3,2)
 game.display_board()
 
-
-game.make_second_move(3,0, 3,2)
-game.display_board()
+winner  = game.check_winner()
+print(winner)
 
 # Ahora debería dar 2 según la descripción proporcionada
 #game.display_board()
