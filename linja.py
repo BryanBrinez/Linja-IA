@@ -1,23 +1,18 @@
 # Actualizando la función para contar piezas en la columna de destino del movimiento
-def contar_diferentes_a_free_en_columna(matriz, columna):
-    contador = 0
-    for fila in matriz:
-        if fila[columna] != "Free":
-            contador += 1
-    return contador
+
 
 # Actualizando la clase LinjaGame con la lógica corregida para el conteo de piezas
 class LinjaGame:
     def __init__(self):
         self.board = [
-            ["Free", "Black", "Free", "Free", "Free", "Free", "Free", "Free"],
-            ["Black", "Black", "Free", "Free", "Free", "Free", "Red", "Red"],
-            ["Black", "Black", "Free", "Free", "Free", "Free", "Red", "Red"],
-            ["Black", "Black", "Free", "Free", "Free", "Red", "Red", "Red"],
-            ["Free", "Black", "Free", "Black", "Free", "Free", "Red", "Red"],
-            ["Free", "Black", "Free", "Black", "Free", "Red", "Red", "Red"],
-            ["Black", "Free", "Free", "Free", "Free", "Free", "Free", "Free"],
-            ["Free", "Free", "Free", "Free", "Free", "Free", "Free", "Free"]
+            ["Free", "Black", "Black", "Black", "Black", "Black", "Black", "Free"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Free", "Red", "Red", "Red", "Red", "Red", "Red", "Free"]
         ]
         self.current_player = "Red"
         self.second_move_distance = 0
@@ -27,13 +22,21 @@ class LinjaGame:
             print(" ".join(row))
         print("\n")
 
+    def contar_diferentes_a_free_en_columna(self, columna):
+        contador = 0
+        for fila in self.board:
+            if fila[columna] != "Free":
+                contador += 1
+        return contador
+
     def make_move(self, start_row, start_col, end_row, end_col):
         if self.is_move_legal(start_row, start_col, end_row, end_col):
             self.board[end_row][end_col] = self.board[start_row][start_col]
             self.board[start_row][start_col] = "Free"
             
             # Contar piezas en la columna de destino, excluyendo la pieza movida
-            self.second_move_distance = contar_diferentes_a_free_en_columna(self.board, end_col) - 1
+            
+            self.second_move_distance = self.contar_diferentes_a_free_en_columna(end_col) - 1
             return self.second_move_distance
         else:
             print("Illegal move")
@@ -41,6 +44,7 @@ class LinjaGame:
 
     
     def make_second_move(self, start_row, start_col, end_row, end_col):
+        print(self.second_move_distance)
         if self.is_second_move_legal(start_row, start_col, end_row, end_col):
             self.board[end_row][end_col] = self.board[start_row][start_col]
             self.board[start_row][start_col] = "Free"
@@ -55,7 +59,6 @@ class LinjaGame:
     def is_move_legal(self, start_row, start_col, end_row, end_col):
         if self.board[end_row][end_col] != "Free":
             return False
-
         if self.current_player == "Red" and self.board[start_row][start_col] != "Red":
             return False
         if self.current_player == "Black" and self.board[start_row][start_col] != "Black":
@@ -83,20 +86,27 @@ class LinjaGame:
         row_distance = abs(end_row - start_row)
         col_distance = abs(end_col - start_col)
 
-        # Verificar la distancia para movimientos rectos y diagonales
-        if row_distance == 0 or col_distance == 0:  # Movimiento recto
-            if row_distance + col_distance != self.second_move_distance:
-                return False
-        else:  # Movimiento diagonal
-            if max(row_distance, col_distance) != self.second_move_distance:
-                return False
+        # Verificar que el movimiento no sea en la misma columna
+        if start_col == end_col:
+            return False
+
+        # Movimientos diagonales: la distancia en filas y columnas debe ser igual y igual a second_move_distance
+        if row_distance == col_distance and row_distance == self.second_move_distance:
+            pass
+        # Movimientos rectos horizontales: distancia en filas es 0 y distancia en columnas igual a second_move_distance
+        elif row_distance == 0 and col_distance == self.second_move_distance:
+            pass
+        else:
+            return False
 
         # Verificar la dirección del movimiento
         if self.current_player == "Red":
-            if col_distance > 0 and end_col <= start_col:
+            # "Red" solo puede moverse hacia la derecha
+            if end_col <= start_col:
                 return False
         elif self.current_player == "Black":
-            if col_distance > 0 and end_col >= start_col:
+            # "Black" solo puede moverse hacia la izquierda
+            if end_col >= start_col:
                 return False
 
         return True
@@ -155,18 +165,26 @@ class LinjaGame:
 
 
     def change_turn(self):
-        self.current_player = "Black" if self.current_player == "Red" else "Red"
+        if self.current_player == "Black":
+            self.current_player = "Red"
+        else: self.current_player = "Black"
 
 # Crear una instancia del juego y realizar el primer movimiento
 game = LinjaGame()
-#pieces_to_move = game.make_move(1, 0, 1, 1)  # Mover de (1,0) a (1,1)
-#print(pieces_to_move)  
+pieces_to_move = game.make_move(1, 0, 1, 1)  # Mover de (1,0) a (1,1)
+print(pieces_to_move)  
 
 #game.display_board()
 
 
 #game.make_second_move(3,0, 3,2)
 game.display_board()
+
+winner  = game.check_winner()
+print(winner)
+game.make_second_move(7,2, 5,3)
+game.display_board()
+
 
 winner  = game.check_winner()
 print(winner)
