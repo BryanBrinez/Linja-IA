@@ -22,7 +22,7 @@ class LinjaGame:
             print(" ".join(row))
         print("\n")
 
-    def count_different_a_free_in_column(self, columna):
+    def contar_diferentes_a_free_en_columna(self, columna):
         contador = 0
         for fila in self.board:
             if fila[columna] != "Free":
@@ -36,7 +36,7 @@ class LinjaGame:
             
             # Contar piezas en la columna de destino, excluyendo la pieza movida
             
-            self.second_move_distance = self.count_different_a_free_in_column(end_col) - 1
+            self.second_move_distance = self.contar_diferentes_a_free_en_columna(end_col) - 1
             return self.second_move_distance
         else:
             print("Illegal move")

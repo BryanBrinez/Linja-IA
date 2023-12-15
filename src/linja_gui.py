@@ -78,8 +78,8 @@ class LinjaGUI:
 
 
     def load_images(self):
-        red_img = Image.open("img/red.png")  # Asegúrate de que la ruta sea correcta
-        black_img = Image.open("img/black.png")
+        red_img = Image.open("../img/red.png")  # Asegúrate de que la ruta sea correcta
+        black_img = Image.open("../img/black.png")
 
         # Redimensionar las imágenes para que encajen en los cuadrados del tablero
         red_img = red_img.resize((self.square_size, self.square_size), Image.Resampling.LANCZOS)
