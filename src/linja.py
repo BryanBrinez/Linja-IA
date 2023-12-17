@@ -14,7 +14,8 @@ class LinjaGame:
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
             ["Free", "Red", "Red", "Red", "Red", "Red", "Red", "Free"]
         ]
-        self.current_player = "Red"
+        self.current_player = "Red"  
+        
         self.second_move_distance = 0
 
     def display_board(self):
@@ -33,15 +34,45 @@ class LinjaGame:
         if self.is_move_legal(start_row, start_col, end_row, end_col):
             self.board[end_row][end_col] = self.board[start_row][start_col]
             self.board[start_row][start_col] = "Free"
-            
-            # Contar piezas en la columna de destino, excluyendo la pieza movida
-            
+
+            # Establecer la distancia inicial para el segundo movimiento
             self.second_move_distance = self.contar_diferentes_a_free_en_columna(end_col) - 1
+
+            #if self.second_move_distance == 0: self.change_turn()
+                
+
+            # Ajustar la distancia del segundo movimiento si no hay movimientos legales disponibles
+            while self.second_move_distance > 0 and not self.any_legal_second_move():
+                self.second_move_distance -= 1
+
             return self.second_move_distance
         else:
             print("Illegal move")
             return False
+        
 
+
+    def find_all_possible_second_moves(self):
+        possible_moves = []
+        for start_row in range(len(self.board)):
+            for start_col in range(len(self.board[start_row])):
+                if self.board[start_row][start_col] == self.current_player:
+                    for end_row in range(len(self.board)):
+                        for end_col in range(len(self.board[end_row])):
+                            if self.is_second_move_legal(start_row, start_col, end_row, end_col):
+                                possible_moves.append((start_row, start_col, end_row, end_col))
+        return possible_moves
+
+    def any_legal_second_move(self):
+        # Verificar si hay algún segundo movimiento legal con la distancia actual
+        for start_row in range(len(self.board)):
+            for start_col in range(len(self.board[start_row])):
+                if self.board[start_row][start_col] == self.current_player:
+                    for end_row in range(len(self.board)):
+                        for end_col in range(len(self.board[end_row])):
+                            if self.is_second_move_legal(start_row, start_col, end_row, end_col):
+                                return True
+        return False
     
     def make_second_move(self, start_row, start_col, end_row, end_col):
         print(self.second_move_distance)
@@ -127,13 +158,29 @@ class LinjaGame:
             return 'The game is a tie with ' + str(red_score) + ' points each'
 
     def game_over(self):
-            # Verificar que no haya fichas rojas y negras en la misma columna
-            for col in range(8):
-                col_contains_red = any(self.board[row][col] == 'Red' for row in range(8))
-                col_contains_black = any(self.board[row][col] == 'Black' for row in range(8))
-                if col_contains_red and col_contains_black:
-                    return False
+        # Verificar si la última columna está completamente ocupada por fichas rojas
+        last_column_full_red = all(self.board[row][7] == "Red" for row in range(8))
+        
+        # Verificar si la penúltima columna está completamente ocupada por fichas rojas
+        second_last_column_full_red = all(self.board[row][6] == "Red" for row in range(8))
+
+        # Verificar si la primera columna está completamente ocupada por fichas negras
+        first_column_full_black = all(self.board[row][0] == "Black" for row in range(8))
+        
+        # Verificar si la segunda columna está completamente ocupada por fichas negras
+        second_column_full_black = all(self.board[row][1] == "Black" for row in range(8))
+
+        # Si las fichas rojas llenan las dos últimas columnas, el juego termina
+        if last_column_full_red and second_last_column_full_red:
             return True
+
+        # Si las fichas negras llenan las dos primeras columnas, el juego termina
+        if first_column_full_black and second_column_full_black:
+            print("game over")
+            return True
+        
+        # Si ninguna condición se cumple, el juego sigue en curso
+        return False
 
 
     
@@ -167,8 +214,6 @@ class LinjaGame:
     def change_turn(self):
         self.current_player = "Black" if self.current_player == "Red" else "Red"
 
-    
-    
     def generate_possible_moves(self):
         possible_moves = []
         for start_row in range(len(self.board)):
@@ -197,6 +242,11 @@ class LinjaGame:
                                 self.board[end_row][end_col] = original_piece
 
         return possible_moves
+    
+    
+
+        
+        
 
             
 
