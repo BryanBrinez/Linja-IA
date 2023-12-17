@@ -1,0 +1,10 @@
+[
+            ["Free", "Black", "Black", "Black", "Black", "Black", "Black", "Free"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
+            ["Free", "Red", "Red", "Red", "Red", "Red", "Red", "Free"]
+        ]

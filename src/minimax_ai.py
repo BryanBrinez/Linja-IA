@@ -1,7 +1,7 @@
 from linja import LinjaGame
 import copy
 class MinimaxAI:
-    def __init__(self, juego, depth=2):
+    def __init__(self, juego, depth=1):
         self.juego = juego
         self.depth = depth
 

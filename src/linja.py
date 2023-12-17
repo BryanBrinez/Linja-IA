@@ -1,6 +1,6 @@
 # Actualizando la función para contar piezas en la columna de destino del movimiento
 
-
+import copy
 # Actualizando la clase LinjaGame con la lógica corregida para el conteo de piezas
 class LinjaGame:
     def __init__(self):
@@ -79,7 +79,7 @@ class LinjaGame:
         if self.is_second_move_legal(start_row, start_col, end_row, end_col):
             self.board[end_row][end_col] = self.board[start_row][start_col]
             self.board[start_row][start_col] = "Free"
-            self.change_turn()
+            #self.change_turn()
             self.second_move_distance = 0  # Resetear la distancia para el segundo movimiento
             return True
         else:
@@ -221,25 +221,20 @@ class LinjaGame:
                 if self.board[start_row][start_col] == self.current_player:
                     for end_row in range(len(self.board)):
                         for end_col in range(len(self.board[end_row])):
-                            if self.is_move_legal(start_row, start_col, end_row, end_col):
-                                # Realizar temporalmente el primer movimiento
-                                original_piece = self.board[end_row][end_col]
-                                self.board[end_row][end_col] = self.board[start_row][start_col]
-                                self.board[start_row][start_col] = "Free"
-                                self.second_move_distance = self.contar_diferentes_a_free_en_columna(end_col) - 1
-
+                            # Crear una copia del estado del juego para probar el movimiento
+                            game_state_copy = copy.deepcopy(self)
+                            if game_state_copy.make_move(start_row, start_col, end_row, end_col):
                                 # Probar todos los posibles segundos movimientos
-                                for second_start_row in range(len(self.board)):
-                                    for second_start_col in range(len(self.board[second_start_row])):
-                                        if self.board[second_start_row][second_start_col] == self.current_player:
-                                            for second_end_row in range(len(self.board)):
-                                                for second_end_col in range(len(self.board[second_end_row])):
-                                                    if self.is_second_move_legal(second_start_row, second_start_col, second_end_row, second_end_col):
+                                for second_start_row in range(len(game_state_copy.board)):
+                                    for second_start_col in range(len(game_state_copy.board[second_start_row])):
+                                        if game_state_copy.board[second_start_row][second_start_col] == self.current_player:
+                                            for second_end_row in range(len(game_state_copy.board)):
+                                                for second_end_col in range(len(game_state_copy.board[second_end_row])):
+                                                    if game_state_copy.make_second_move(second_start_row, second_start_col, second_end_row, second_end_col):
+                                                        # Agregar ambos movimientos a la lista de posibles movimientos
                                                         possible_moves.append(((start_row, start_col, end_row, end_col), (second_start_row, second_start_col, second_end_row, second_end_col)))
-
-                                # Restaurar el tablero a su estado original
-                                self.board[start_row][start_col] = self.board[end_row][end_col]
-                                self.board[end_row][end_col] = original_piece
+                                                        # Restaurar el tablero después de probar el segundo movimiento
+                                                        game_state_copy.board = copy.deepcopy(self.board)
 
         return possible_moves
     

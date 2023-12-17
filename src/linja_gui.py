@@ -136,7 +136,8 @@ class LinjaGUI:
                         self.selected_piece = None  # Deseleccionar la ficha después de un movimiento válido
                         steps_available = self.game.second_move_distance
                         self.steps_label.config(text=f"Pasos disponibles para el segundo movimiento: {steps_available}")
-
+                        mov = self.game.find_all_possible_second_moves()
+                        print(mov)
                         self.update_board()
                     else:
                         messagebox.showerror("Error", "Movimiento no válido")
@@ -157,6 +158,7 @@ class LinjaGUI:
                         self.root.update_idletasks()
 
                         # Después de actualizar la interfaz gráfica, realizar el movimiento de la IA
+                        self.game.change_turn()
                         self.perform_black_move()
                         self.game.change_turn()
 
@@ -177,7 +179,7 @@ class LinjaGUI:
             print("el best",best_move)
             self.ai.apply_move(self.game, best_move)
             self.update_board()
-            self.game.change_turn()
+            #self.game.change_turn()
             self.turn_label.config(text=f"Turno actual: {self.game.current_player}")
         else:
             messagebox.showinfo("Fin del juego", "No hay movimientos posibles para el jugador negro.")
