@@ -4,15 +4,16 @@ import copy
 # Actualizando la clase LinjaGame con la lógica corregida para el conteo de piezas
 class LinjaGame:
     def __init__(self):
+        #Tablero default
         self.board = [
-            ["Free", "Black", "Black", "Black", "Black", "Black", "Black", "Free"],
+            ["Free", "Free", "Black", "Black", "Black", "Black", "Black", "Black"],
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
-            ["Free", "Red", "Red", "Red", "Red", "Red", "Red", "Free"]
+            ["Free", "Free", "Red", "Red", "Red", "Red", "Red", "Free"]
         ]
         self.current_player = "Red"  
         
@@ -24,6 +25,7 @@ class LinjaGame:
         print("\n")
 
     def contar_diferentes_a_free_en_columna(self, columna):
+        #Cuenta cuantos black o red hay en una columna
         contador = 0
         for fila in self.board:
             if fila[columna] != "Free":
@@ -35,13 +37,18 @@ class LinjaGame:
             self.board[end_row][end_col] = self.board[start_row][start_col]
             self.board[start_row][start_col] = "Free"
 
-            # Establecer la distancia inicial para el segundo movimiento
+            # Establecer la distancia inicial para el segundo movimiento, se le resta 1, ya que es la ficha recien movida
             self.second_move_distance = self.contar_diferentes_a_free_en_columna(end_col) - 1
+
+            
 
             if self.second_move_distance == 0: 
                 self.change_turn()
                 return True
                 
+            
+
+
 
             # Ajustar la distancia del segundo movimiento si no hay movimientos legales disponibles
             while self.second_move_distance > 0 and not self.any_legal_second_move():
@@ -54,7 +61,21 @@ class LinjaGame:
         
 
 
+    def find_all_possible_first_moves(self):
+        #busca todas las primeros movimientos 
+        possible_moves = []
+        for start_row in range(len(self.board)):
+            for start_col in range(len(self.board[start_row])):
+                if self.board[start_row][start_col] == self.current_player:
+                    for end_row in range(len(self.board)):
+                        for end_col in range(len(self.board[end_row])):
+                            if self.is_move_legal(start_row, start_col, end_row, end_col):
+                                possible_moves.append((start_row, start_col, end_row, end_col))
+        return possible_moves
+
+
     def find_all_possible_second_moves(self):
+        #busca todas los segundos movimientos 
         possible_moves = []
         for start_row in range(len(self.board)):
             for start_col in range(len(self.board[start_row])):
@@ -99,7 +120,7 @@ class LinjaGame:
 
         move_direction = 1 if self.current_player == "Red" else -1
 
-        # Allow diagonal and straight moves
+        # permitir diagonal
         if abs(start_row - end_row) == 1 and abs(start_col - end_col) == 1:
             if (self.current_player == "Red" and end_col > start_col) or (self.current_player == "Black" and end_col < start_col):
                 return True
@@ -148,6 +169,7 @@ class LinjaGame:
         if not self.game_over():
             return None, None, None  # Juego no ha terminado aún
 
+        #si termina calcula el puntaje
         red_score, black_score = self.calculate_scores()
         
         if red_score > black_score:
@@ -209,11 +231,11 @@ class LinjaGame:
     def change_turn(self):
         self.current_player = "Black" if self.current_player == "Red" else "Red"
 
-    def generate_possible_moves(self):
+    def generate_possible_moves(self, player):
         possible_moves = []
         for start_row in range(len(self.board)):
             for start_col in range(len(self.board[start_row])):
-                if self.board[start_row][start_col] == self.current_player:
+                if self.board[start_row][start_col] == player:
                     for end_row in range(len(self.board)):
                         for end_col in range(len(self.board[end_row])):
                             # Crear una copia del estado del juego para probar el movimiento
@@ -222,7 +244,7 @@ class LinjaGame:
                                 # Probar todos los posibles segundos movimientos
                                 for second_start_row in range(len(game_state_copy.board)):
                                     for second_start_col in range(len(game_state_copy.board[second_start_row])):
-                                        if game_state_copy.board[second_start_row][second_start_col] == self.current_player:
+                                        if game_state_copy.board[second_start_row][second_start_col] == player:
                                             for second_end_row in range(len(game_state_copy.board)):
                                                 for second_end_col in range(len(game_state_copy.board[second_end_row])):
                                                     if game_state_copy.make_second_move(second_start_row, second_start_col, second_end_row, second_end_col):

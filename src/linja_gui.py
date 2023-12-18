@@ -124,6 +124,7 @@ class LinjaGUI:
     def on_canvas_click(self, event):
         col = event.x // self.square_size
         row = event.y // self.square_size
+        
 
         if self.game.current_player == "Red":
 
@@ -137,8 +138,7 @@ class LinjaGUI:
                         self.selected_piece = None  # Deseleccionar la ficha después de un movimiento válido
                         steps_available = self.game.second_move_distance
                         self.steps_label.config(text=f"Pasos disponibles para el segundo movimiento: {steps_available}")
-                        mov = self.game.find_all_possible_second_moves()
-                        print(mov)
+                        
                         if steps_available == 0:
                             self.is_first_move = True
                             self.selected_piece = None
@@ -147,6 +147,8 @@ class LinjaGUI:
                         self.update_board()
                     else:
                         messagebox.showerror("Error", "Movimiento no válido")
+                        
+                        self.update_board()
                         self.selected_piece = None  # Reiniciar la selección de ficha en caso de movimiento ilegal
                         self.update_board()  # Deseleccionar la casilla al mostrar el error
                 else:
@@ -211,6 +213,14 @@ class LinjaGUI:
 
         self.turn_label.config(text=f"Turno actual: {self.game.current_player}")  # Actualiza el texto de la etiqueta
         
+
+        if not self.game.find_all_possible_first_moves():
+            self.game.change_turn()
+            if self.game.current_player == "Black":
+                self.is_first_move = True
+                self.selected_piece = None
+                self.perform_black_move()
+                self.game.change_turn()
         # Verificar si hay un ganador
         winner_info = self.game.check_winner()
         if winner_info[0] is not None:  # Asegurarse de que hay un ganador
