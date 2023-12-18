@@ -131,6 +131,7 @@ class LinjaGUI:
                 start_row, start_col = self.selected_piece
                 if self.is_first_move:
                     moved = self.game.make_move(start_row, start_col, row, col)
+                    print("el mov",moved)
                     if moved:
                         self.is_first_move = False  # Prepararse para el segundo movimiento
                         self.selected_piece = None  # Deseleccionar la ficha después de un movimiento válido
@@ -138,6 +139,11 @@ class LinjaGUI:
                         self.steps_label.config(text=f"Pasos disponibles para el segundo movimiento: {steps_available}")
                         mov = self.game.find_all_possible_second_moves()
                         print(mov)
+                        if steps_available == 0:
+                            self.is_first_move = True
+                            self.selected_piece = None
+                            self.perform_black_move()
+                            self.game.change_turn()
                         self.update_board()
                     else:
                         messagebox.showerror("Error", "Movimiento no válido")
@@ -204,10 +210,16 @@ class LinjaGUI:
                 self.draw_piece(i, j, x1, y1)
 
         self.turn_label.config(text=f"Turno actual: {self.game.current_player}")  # Actualiza el texto de la etiqueta
-
+        
+        # Verificar si hay un ganador
+        winner_info = self.game.check_winner()
+        if winner_info[0] is not None:  # Asegurarse de que hay un ganador
+            winner, red_score, black_score = winner_info
+            messagebox.showinfo("Fin del juego", f"¡Juego terminado! {winner} gana con {red_score if winner == 'Red' else black_score} puntos.")
 
 # Creando la instancia del juego y la interfaz
 game = LinjaGame()
 root = tk.Tk()
 app = LinjaGUI(root, game)
 root.mainloop()
+

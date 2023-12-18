@@ -38,7 +38,9 @@ class LinjaGame:
             # Establecer la distancia inicial para el segundo movimiento
             self.second_move_distance = self.contar_diferentes_a_free_en_columna(end_col) - 1
 
-            #if self.second_move_distance == 0: self.change_turn()
+            if self.second_move_distance == 0: 
+                self.change_turn()
+                return True
                 
 
             # Ajustar la distancia del segundo movimiento si no hay movimientos legales disponibles
@@ -144,43 +146,36 @@ class LinjaGame:
 
     def check_winner(self):
         if not self.game_over():
-            return 'The game is not over yet'
+            return None, None, None  # Juego no ha terminado aún
 
         red_score, black_score = self.calculate_scores()
         
-        
-
         if red_score > black_score:
-            return 'Red wins with ' + str(red_score) + ' points' + str(black_score)
+            return 'Red', red_score, black_score
         elif black_score > red_score:
-            return 'Black wins with ' + str(black_score) + ' points' + str(red_score)
+            return 'Black', red_score, black_score
         else:
-            return 'The game is a tie with ' + str(red_score) + ' points each'
+            return 'Tie', red_score, black_score
 
     def game_over(self):
-        # Verificar si la última columna está completamente ocupada por fichas rojas
-        last_column_full_red = all(self.board[row][7] == "Red" for row in range(8))
+        # Contar las fichas rojas en las columnas 4, 5, 6, 7
+        reds_on_right_side = sum(row[col] == "Red" for row in self.board for col in range(4, 8))
+        print("las red", reds_on_right_side)
         
-        # Verificar si la penúltima columna está completamente ocupada por fichas rojas
-        second_last_column_full_red = all(self.board[row][6] == "Red" for row in range(8))
+        # Contar las fichas negras en las columnas 0, 1, 2, 3
+        blacks_on_left_side = sum(row[col] == "Black" for row in self.board for col in range(4))
 
-        # Verificar si la primera columna está completamente ocupada por fichas negras
-        first_column_full_black = all(self.board[row][0] == "Black" for row in range(8))
+        print("las blac", blacks_on_left_side)
         
-        # Verificar si la segunda columna está completamente ocupada por fichas negras
-        second_column_full_black = all(self.board[row][1] == "Black" for row in range(8))
+        # Asegurarse de que no hay fichas rojas en las columnas 0, 1, 2, 3
+        no_reds_on_left_side = all(row[col] != "Red" for row in self.board for col in range(4))
+        print("las no red", no_reds_on_left_side)
+        # Asegurarse de que no hay fichas negras en las columnas 4, 5, 6, 7
+        no_blacks_on_right_side = all(row[col] != "Black" for row in self.board for col in range(4, 8))
+        print("las no black", no_blacks_on_right_side)
 
-        # Si las fichas rojas llenan las dos últimas columnas, el juego termina
-        if last_column_full_red and second_last_column_full_red:
-            return True
-
-        # Si las fichas negras llenan las dos primeras columnas, el juego termina
-        if first_column_full_black and second_column_full_black:
-            print("game over")
-            return True
-        
-        # Si ninguna condición se cumple, el juego sigue en curso
-        return False
+        # Verificar si todas las fichas están en sus respectivas columnas
+        return reds_on_right_side == 12 and blacks_on_left_side == 12 and no_reds_on_left_side and no_blacks_on_right_side
 
 
     
