@@ -14,6 +14,8 @@ class LinjaGUI:
         self.square_size = 50  # Tamaño de cada cuadrado del tablero
         self.margins = 100    # Márgenes en píxeles
 
+        self.highlighted_squares = []
+
         self.load_images()     # Cargar las imágenes
         # Crea una instancia de MinimaxAI
         self.ai = MinimaxAI(game)
@@ -105,20 +107,32 @@ class LinjaGUI:
 
         self.canvas.bind("<Button-1>", self.on_canvas_click)
 
+
+
+
     def draw_piece(self, row, col, x1, y1):
-        piece = self.game.board[row][col]
-
+        # Primero, determina el color de fondo de la casilla
         if (row, col) == self.selected_piece:
+            # Resalta la casilla seleccionada en verde
+            self.canvas.create_rectangle(x1, y1, x1 + self.square_size, y1 + self.square_size, fill="green", outline="red")
+        elif (row, col) in self.highlighted_squares:
+            # Resalta las casillas destino en azul
             self.canvas.create_rectangle(x1, y1, x1 + self.square_size, y1 + self.square_size, fill="blue", outline="red")
-
-        if piece == "Red":
-            image = self.red_piece
-        elif piece == "Black":
-            image = self.black_piece
         else:
-            return
+            # Casillas normales en blanco
+            self.canvas.create_rectangle(x1, y1, x1 + self.square_size, y1 + self.square_size, fill="white", outline="black")
 
-        self.canvas.create_image(x1 + self.square_size // 2, y1 + self.square_size // 2, image=image, anchor='center')
+        # Luego, dibuja la pieza si hay una en esta casilla
+        piece = self.game.board[row][col]
+        if piece == "Red":
+            image = self.red_piece  # Imagen de la pieza roja
+            self.canvas.create_image(x1 + self.square_size // 2, y1 + self.square_size // 2, image=image, anchor='center')
+        elif piece == "Black":
+            image = self.black_piece  # Imagen de la pieza negra
+            self.canvas.create_image(x1 + self.square_size // 2, y1 + self.square_size // 2, image=image, anchor='center')
+        # No se hace nada si la casilla está vacía ('Free')
+
+
     
     
     def on_canvas_click(self, event):
@@ -127,12 +141,27 @@ class LinjaGUI:
         
 
         if self.game.current_player == "Red":
+                # Obtener todos los posibles primeros movimientos
+            if self.is_first_move:
+                all_possible_moves = self.game.find_all_possible_first_moves()
+                filtered_moves = [move for move in all_possible_moves if move[0] == row and move[1] == col]
+                # Filtrar para obtener solo los movimientos que comienzan en la fila y columna seleccionadas
+                self.highlighted_squares = [(move[2], move[3]) for move in filtered_moves]
+                self.update_board()
+            else: 
+                all_possible_moves = self.game.find_all_possible_second_moves()
+                filtered_moves = [move for move in all_possible_moves if move[0] == row and move[1] == col]
+                # Filtrar para obtener solo los movimientos que comienzan en la fila y columna seleccionadas
+                self.highlighted_squares = [(move[2], move[3]) for move in filtered_moves]
+                self.update_board()
+
+
 
             if self.selected_piece:
+                
                 start_row, start_col = self.selected_piece
                 if self.is_first_move:
                     moved = self.game.make_move(start_row, start_col, row, col)
-                    print("el mov",moved)
                     if moved:
                         self.is_first_move = False  # Prepararse para el segundo movimiento
                         self.selected_piece = None  # Deseleccionar la ficha después de un movimiento válido
@@ -147,11 +176,17 @@ class LinjaGUI:
                         self.update_board()
                     else:
                         messagebox.showerror("Error", "Movimiento no válido")
+                        self.update_board()
+                        self.highlighted_squares = []
                         
                         self.update_board()
                         self.selected_piece = None  # Reiniciar la selección de ficha en caso de movimiento ilegal
                         self.update_board()  # Deseleccionar la casilla al mostrar el error
                 else:
+
+                    if not self.is_first_move:
+                        print("sisaaaaaa")
+
                     moved = self.game.make_second_move(start_row, start_col, row, col)
                     
                     if moved:
@@ -167,7 +202,7 @@ class LinjaGUI:
 
                         # Después de actualizar la interfaz gráfica, realizar el movimiento de la IA
                         self.game.change_turn()
-                        self.perform_black_move()
+                        #self.perform_black_move()
                         self.game.change_turn()
 
                     else:
