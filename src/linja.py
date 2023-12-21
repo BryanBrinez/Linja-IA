@@ -6,14 +6,13 @@ class LinjaGame:
     def __init__(self):
         #Tablero default
         self.board = [
-            ["Free", "Black", "Black", "Black", "Black", "Black", "Black", "Free"],
+            ["Red", "Black", "Black", "Black", "Black", "Black", "Black", "Black"],
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
             ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
-            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
-            ["Red", "Free", "Free", "Free", "Free", "Free", "Free", "Black"],
-            ["Free", "Red", "Red", "Red", "Red", "Red", "Red", "Free"]
+            ["Red", "Red", "Red", "Red", "Red", "Red", "Red", "Black"]
+            
         ]
         self.current_player = "Red"  
         

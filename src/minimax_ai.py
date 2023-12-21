@@ -49,8 +49,7 @@ class MinimaxAI:
         average_distance = total_distance / (len(positions) * (len(positions) - 1))
         return average_distance
 
-    def calculate_distance(self, pos1, pos2):
-        
+    def calculate_distance(self, pos1, pos2):    
         return ((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2) ** 0.5
 
     def apply_move(self, game_state, move):

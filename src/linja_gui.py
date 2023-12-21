@@ -14,6 +14,13 @@ class LinjaGUI:
         self.square_size = 50  # Tamaño de cada cuadrado del tablero
         self.margins = 100    # Márgenes en píxeles
 
+         # Cargar y colocar la imagen de fondo
+        
+        self.root.geometry("800x600")
+
+        self.load_background_image()
+
+
         self.highlighted_squares = []
 
         self.load_images()     # Cargar las imágenes
@@ -91,18 +98,16 @@ class LinjaGUI:
         self.black_piece = ImageTk.PhotoImage(black_img)
 
     def create_board(self):
-        self.canvas = tk.Canvas(self.board_frame, width=self.square_size*8, height=self.square_size*8)
+        self.canvas = tk.Canvas(self.board_frame, width=self.square_size*8, height=self.square_size*6)
         self.canvas.pack()
 
-        for i in range(8):
-            for j in range(8):
+        for i in range(6):  # Ahora el tablero tiene 6 filas
+            for j in range(8):  # El tablero tiene 8 columnas
                 x1 = j * self.square_size
                 y1 = i * self.square_size
                 x2 = x1 + self.square_size
                 y2 = y1 + self.square_size
                 self.canvas.create_rectangle(x1, y1, x2, y2, fill="white", outline="black")
-                
-                # Dibujar las imágenes desde el inicio
                 self.draw_piece(i, j, x1, y1)
 
         self.canvas.bind("<Button-1>", self.on_canvas_click)
@@ -202,7 +207,7 @@ class LinjaGUI:
 
                         # Después de actualizar la interfaz gráfica, realizar el movimiento de la IA
                         self.game.change_turn()
-                        #self.perform_black_move()
+                        self.perform_black_move()
                         self.game.change_turn()
 
                     else:
@@ -228,25 +233,33 @@ class LinjaGUI:
             messagebox.showinfo("Fin del juego", "No hay movimientos posibles para el jugador negro.")
 
 
+    
         
-        
+    def load_background_image(self):
+        # Carga la imagen de fondo
+        bg_img = Image.open("../img/fondo.png")  # Asegúrate de que la ruta sea correcta
+        # Redimensionar la imagen al tamaño de la ventana
+        bg_img = bg_img.resize((800, 600), Image.Resampling.LANCZOS)  # Ajusta el tamaño según tus necesidades
+        self.bg_image = ImageTk.PhotoImage(bg_img)
+
+        # Crear y colocar el Label con la imagen de fondo
+        self.background_label = tk.Label(self.root, image=self.bg_image)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
     def update_board(self):
         self.canvas.delete("all")  # Borra todo del canvas
 
         # Redibuja el tablero y las piezas
-        for i in range(8):
-            for j in range(8):
+        for i in range(6):  # Ajustar para 6 filas
+            for j in range(8):  # Mantener 8 columnas
                 x1 = j * self.square_size
                 y1 = i * self.square_size
                 x2 = x1 + self.square_size
                 y2 = y1 + self.square_size
                 self.canvas.create_rectangle(x1, y1, x2, y2, fill="white", outline="black")
-
-                # Dibujar las imágenes actualizadas
                 self.draw_piece(i, j, x1, y1)
 
-        self.turn_label.config(text=f"Turno actual: {self.game.current_player}")  # Actualiza el texto de la etiqueta
+            self.turn_label.config(text=f"Turno actual: {self.game.current_player}")  # Actualiza el texto de la etiqueta
         
 
         if not self.game.find_all_possible_first_moves():
@@ -267,4 +280,3 @@ game = LinjaGame()
 root = tk.Tk()
 app = LinjaGUI(root, game)
 root.mainloop()
-
